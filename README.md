@@ -55,8 +55,15 @@ A comprehensive AI-powered platform for brands to audit, analyze, and evaluate i
     source venv/bin/activate
 
     # Install dependencies
-    pip install fastapi uvicorn pydantic
+    pip install fastapi uvicorn pydantic openai
     ```
+
+    **Optional: Enable Real AI**
+    To use real GPT-4 analysis instead of mock data:
+    ```bash
+    export OPENAI_API_KEY="sk-..."
+    ```
+    *If no key is provided, the system defaults to the Mock LLM automatically.*
 
 3.  **Frontend Setup**
     ```bash

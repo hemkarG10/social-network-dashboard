@@ -12,17 +12,16 @@ const KPICard = ({ kpi }) => {
     };
 
     return (
-        <div className="bg-white p-4 rounded-lg border border-slate-200 shadow-sm hover:shadow-md transition-shadow">
-            <div className="flex justify-between items-start mb-2">
-                <h4 className="text-xs font-semibold text-slate-500 uppercase max-w-[70%] text-ellipsis overflow-hidden whitespace-nowrap" title={kpi.kpi_id}>
+        <div className="bg-white p-4 rounded-lg border border-slate-200 shadow-sm hover:shadow-md transition-shadow h-full flex flex-col relative overflow-hidden">
+            {/* Header: Title */}
+            <div className="mb-2 pr-12">
+                <h4 className="text-xs font-bold text-slate-500 uppercase tracking-wider leading-tight">
                     {kpi.kpi_id.replace(/_/g, ' ')}
                 </h4>
-                <span className="text-xs font-mono text-slate-400 bg-slate-100 px-1 rounded">
-                    {(confidence_score * 100).toFixed(0)}% Conf.
-                </span>
             </div>
 
-            <div className="text-lg font-bold text-slate-900 mb-3 truncate">
+            {/* Value */}
+            <div className="text-2xl font-bold text-slate-900 mb-3">
                 {value}
             </div>
 
@@ -34,9 +33,31 @@ const KPICard = ({ kpi }) => {
                 />
             </div>
 
-            <p className="text-xs text-slate-600 leading-snug line-clamp-3">
+            {/* Explanation - Grows to fill space, no clamp */}
+            <p className="text-xs text-slate-600 leading-relaxed flex-grow">
                 {explanation}
             </p>
+
+            {/* Confidence Badge with Tooltip */}
+            <div className="absolute top-4 right-4 group">
+                <span
+                    className={clsx(
+                        "text-[10px] font-mono px-1.5 py-0.5 rounded border opacity-80 cursor-help",
+                        confidence_score > 0.8 ? "bg-green-50 text-green-700 border-green-200" :
+                            confidence_score > 0.5 ? "bg-yellow-50 text-yellow-700 border-yellow-200" :
+                                "bg-slate-50 text-slate-500 border-slate-200"
+                    )}
+                >
+                    {Math.round(confidence_score * 100)}%
+                </span>
+
+                {/* Tooltip */}
+                <div className="hidden group-hover:block absolute right-0 top-6 z-10 w-48 p-2 bg-slate-800 text-white text-[10px] rounded shadow-lg border border-slate-700 leading-tight">
+                    <strong>Confidence Score</strong>
+                    <br />
+                    Indicates AI certainty based on data pattern consistency and historical accuracy.
+                </div>
+            </div>
         </div>
     );
 };

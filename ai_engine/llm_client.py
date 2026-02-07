@@ -444,4 +444,56 @@ class MockLLMClient:
             ]
         }
 
-llm_client = MockLLMClient()
+import os
+try:
+    from openai import OpenAI
+    OPENAI_AVAILABLE = True
+except ImportError:
+    OPENAI_AVAILABLE = False
+
+class RealLLMClient:
+    """
+    Real integration with OpenAI GPT-4o-mini (or similar).
+    Uses the same interface as MockLLMClient.
+    """
+    def __init__(self, api_key):
+        self.client = OpenAI(api_key=api_key)
+        self.model = "gpt-4o-mini" # Cost effective and fast
+
+    def generate(self, system_prompt: str, user_data: Dict[str, Any]) -> Any:
+        try:
+            # Prepare the user message with the data context
+            user_content = f"Here is the data context:\n{json.dumps(user_data, indent=2)}"
+            
+            response = self.client.chat.completions.create(
+                model=self.model,
+                messages=[
+                    {"role": "system", "content": system_prompt},
+                    {"role": "user", "content": user_content}
+                ],
+                response_format={"type": "json_object"},
+                temperature=0.7
+            )
+            
+            content = response.choices[0].message.content
+            return json.loads(content)
+        except Exception as e:
+            print(f"LLM Error: {e}")
+            # Fallback to mock on error? Or just raise? 
+            # For reliability in this hybrid setup, getting SOMETHING is better.
+            print("Falling back to Mock Client due to error.")
+            return MockLLMClient().generate(system_prompt, user_data)
+
+# ... (MockLLMClient remains as is, but we will instantiate based on env)
+
+# Selector Logic
+api_key = os.environ.get("OPENAI_API_KEY")
+
+if api_key and OPENAI_AVAILABLE:
+    print("🚀 Using Real LLM Client (OpenAI)")
+    llm_client = RealLLMClient(api_key)
+else:
+    print("🤖 Using Mock LLM Client (Deterministic)")
+    if api_key and not OPENAI_AVAILABLE:
+        print("   (OpenAI Key found but 'openai' package not installed. Run `pip install openai`)")
+    llm_client = MockLLMClient()

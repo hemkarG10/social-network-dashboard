@@ -131,7 +131,7 @@ function App() {
                     ['avg_percentage_viewed', 'predicted_saves', 'promo_code_redemptions', 'predicted_shares', 'avg_view_duration', 'stayed_vs_swiped', 'comment_sentiment_quality', 'predicted_impressions'].includes(k.kpi_id)
                   )} />
                 </div>
-                <AIAnalystPanel reports={result.analyst_reports} />
+                <AIAnalystPanel kpis={result.kpis} />
               </div>
             ) : (
               <div className="grid lg:grid-cols-2 gap-8 h-[600px]">

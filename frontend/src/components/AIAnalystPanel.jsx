@@ -1,89 +1,80 @@
-import React, { useState } from 'react';
-import { ChevronDown, ChevronUp, User, ShieldAlert, BarChart3, Users } from 'lucide-react';
+import React from 'react';
+import { ShieldAlert, BarChart3, Users } from 'lucide-react';
 import { clsx } from 'clsx';
 
-const AnalystCard = ({ report, icon: Icon, color }) => {
-    const [isOpen, setIsOpen] = useState(true);
-    const { role, kpis, analysis } = report;
-
+const AnalystCard = ({ role, icon: Icon, color, kpis }) => {
     return (
         <div className="border border-slate-200 rounded-lg bg-white overflow-hidden shadow-sm h-full flex flex-col">
-            <button
-                onClick={() => setIsOpen(!isOpen)}
-                className="w-full flex items-center justify-between p-4 bg-slate-50 hover:bg-slate-100 transition-colors border-b border-slate-100"
-            >
+            <div className="w-full flex items-center justify-between p-4 bg-slate-50 border-b border-slate-100">
                 <div className="flex items-center gap-3">
                     <div className={clsx("p-2 rounded-lg", color)}>
                         <Icon size={20} className="text-white" />
                     </div>
-                    <h4 className="font-semibold text-slate-800">{role}</h4>
-                </div>
-                {isOpen ? <ChevronUp size={20} className="text-slate-400" /> : <ChevronDown size={20} className="text-slate-400" />}
-            </button>
-
-            {isOpen && (
-                <div className="p-5 flex flex-col gap-4 text-sm flex-1">
-                    {/* Headline Section */}
-                    <div className="pb-3 border-b border-slate-100">
-                        <div className="flex justify-between items-center mb-1">
-                            <span className="font-bold text-slate-700">Analysis Headline</span>
-                            <span className="text-xs font-mono bg-slate-100 px-2 py-0.5 rounded text-slate-500">{analysis.magnitude}</span>
-                        </div>
-                        <p className="text-slate-800 leading-snug font-medium">"{analysis.headline}"</p>
-                    </div>
-
-                    {/* Drivers & Hypotheses */}
-                    <div className="grid grid-cols-1 gap-3">
-                        <div>
-                            <h5 className="text-xs font-bold text-slate-500 uppercase mb-1">Top Drivers (Segments)</h5>
-                            <ul className="list-disc list-inside space-y-0.5 text-slate-600">
-                                {analysis.drivers.map((d, i) => <li key={i}>{d}</li>)}
-                            </ul>
-                        </div>
-                        <div>
-                            <h5 className="text-xs font-bold text-slate-500 uppercase mb-1">Hypotheses</h5>
-                            <ul className="list-disc list-inside space-y-0.5 text-slate-600">
-                                {analysis.hypotheses.map((h, i) => <li key={i}>{h}</li>)}
-                            </ul>
-                        </div>
-                    </div>
-
-                    {/* Actionable Next Steps */}
-                    <div className="mt-auto bg-indigo-50 p-3 rounded-lg border border-indigo-100">
-                        <h5 className="text-xs font-bold text-indigo-800 uppercase mb-2 flex items-center gap-1">
-                            <ShieldAlert size={12} /> Recommended Actions
-                        </h5>
-                        <ul className="space-y-1">
-                            {analysis.next_actions.map((action, i) => (
-                                <li key={i} className="flex gap-2 text-indigo-900">
-                                    <span className="font-bold select-none">→</span>
-                                    <span>{action}</span>
-                                </li>
-                            ))}
-                        </ul>
+                    <div className="flex flex-col">
+                        <h4 className="font-semibold text-slate-800">{role}</h4>
+                        <span className="text-xs text-slate-500 font-medium">{kpis.length} Metrics Analyzed</span>
                     </div>
                 </div>
-            )}
+            </div>
+
+            <div className="p-4 space-y-3 bg-white flex-1 overflow-y-auto max-h-[400px]">
+                {kpis.map((kpi, idx) => (
+                    <div key={idx} className="border-b last:border-0 border-slate-50 pb-3 last:pb-0">
+                        <div className="flex justify-between items-baseline mb-1">
+                            <span className="text-xs font-semibold text-slate-600 uppercase tracking-wide">
+                                {kpi.kpi_id.replace(/_/g, ' ')}
+                            </span>
+                            <span className="font-bold text-slate-900 font-mono">{kpi.value}</span>
+                        </div>
+                        <p className="text-sm text-slate-600 bg-slate-50 p-2 rounded-md italic leading-relaxed border border-slate-100">
+                            "{kpi.explanation}"
+                        </p>
+                    </div>
+                ))}
+            </div>
         </div>
     );
 };
 
-const AIAnalystPanel = ({ reports }) => {
-    if (!reports) return null;
+// Helper function to categorize KPIs
+const categorize = (kpi) => {
+    const id = kpi.kpi_id;
+    // Categorization logic based on ID patterns
+    if (id.includes('brand_safety') || id.includes('controversy') || id.includes('fake_follower') || id.includes('platform_risk')) return 'risk';
+    if (id.includes('authenticity') || id.includes('engagement_quality') || id.includes('audience_brand') || id.includes('fatigue')) return 'audience';
+    // Default to performance for everything else (impressions, views, etc)
+    return 'performance';
+};
+
+const AIAnalystPanel = ({ kpis }) => {
+    if (!kpis) return null;
+
+    const performanceKPIs = kpis.filter(k => categorize(k) === 'performance');
+    const riskKPIs = kpis.filter(k => categorize(k) === 'risk');
+    const audienceKPIs = kpis.filter(k => categorize(k) === 'audience');
 
     return (
         <div className="mb-8">
             <h3 className="text-lg font-semibold text-slate-800 mb-4 px-1">AI Staff Analysis</h3>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-start">
-                {reports.map((report, idx) => {
-                    let Icon = BarChart3;
-                    let color = "bg-blue-500";
-
-                    if (report.role.includes("Risk")) { Icon = ShieldAlert; color = "bg-red-500"; }
-                    if (report.role.includes("Audience")) { Icon = Users; color = "bg-purple-500"; }
-
-                    return <AnalystCard key={idx} report={report} icon={Icon} color={color} />;
-                })}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <AnalystCard
+                    role="Performance Analyst"
+                    icon={BarChart3}
+                    color="bg-blue-500"
+                    kpis={performanceKPIs}
+                />
+                <AnalystCard
+                    role="Risk Analyst"
+                    icon={ShieldAlert}
+                    color="bg-red-500"
+                    kpis={riskKPIs}
+                />
+                <AnalystCard
+                    role="Audience Strategist"
+                    icon={Users}
+                    color="bg-purple-500"
+                    kpis={audienceKPIs}
+                />
             </div>
         </div>
     );
