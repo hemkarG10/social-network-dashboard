@@ -1,0 +1,56 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "Decision Summary",
+    "type": "object",
+    "required": [
+        "decision",
+        "roi_prediction",
+        "risk_level",
+        "executive_summary"
+    ],
+    "properties": {
+        "decision": {
+            "type": "string",
+            "enum": [
+                "GO",
+                "NO-GO",
+                "TEST"
+            ]
+        },
+        "roi_prediction": {
+            "type": "object",
+            "properties": {
+                "min": {
+                    "type": "number"
+                },
+                "max": {
+                    "type": "number"
+                },
+                "confidence": {
+                    "type": "number"
+                }
+            },
+            "required": [
+                "min",
+                "max"
+            ]
+        },
+        "risk_level": {
+            "type": "string",
+            "enum": [
+                "LOW",
+                "MEDIUM",
+                "HIGH"
+            ]
+        },
+        "executive_summary": {
+            "type": "string"
+        },
+        "top_flags": {
+            "type": "array",
+            "items": {
+                "type": "string"
+            }
+        }
+    }
+}

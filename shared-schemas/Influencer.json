@@ -1,0 +1,130 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "Influencer Profile",
+    "type": "object",
+    "required": [
+        "id",
+        "handle",
+        "platform",
+        "niche",
+        "followers",
+        "engagement_rate",
+        "pricing",
+        "hidden_truth"
+    ],
+    "properties": {
+        "id": {
+            "type": "string"
+        },
+        "handle": {
+            "type": "string"
+        },
+        "platform": {
+            "type": "string",
+            "enum": [
+                "Instagram",
+                "TikTok",
+                "YouTube"
+            ]
+        },
+        "niche": {
+            "type": "string"
+        },
+        "followers": {
+            "type": "integer",
+            "minimum": 0
+        },
+        "engagement_rate": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 100
+        },
+        "avg_comments": {
+            "type": "integer",
+            "minimum": 0
+        },
+        "avg_likes": {
+            "type": "integer",
+            "minimum": 0
+        },
+        "pricing": {
+            "type": "object",
+            "properties": {
+                "post": {
+                    "type": "number"
+                },
+                "story": {
+                    "type": "number"
+                },
+                "reel": {
+                    "type": "number"
+                }
+            },
+            "required": [
+                "post"
+            ]
+        },
+        "audience_demographics": {
+            "type": "object",
+            "properties": {
+                "age_18_24": {
+                    "type": "number"
+                },
+                "age_25_34": {
+                    "type": "number"
+                },
+                "female_pct": {
+                    "type": "number"
+                },
+                "top_countries": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "recent_posts": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "type": {
+                        "type": "string"
+                    },
+                    "likes": {
+                        "type": "integer"
+                    },
+                    "comments": {
+                        "type": "integer"
+                    },
+                    "is_sponsored": {
+                        "type": "boolean"
+                    }
+                }
+            }
+        },
+        "hidden_truth": {
+            "description": "Ground truth values for internal evaluation ONLY. Not visible to AI Agents.",
+            "type": "object",
+            "properties": {
+                "true_authenticity_score": {
+                    "type": "number"
+                },
+                "true_engagement_quality": {
+                    "type": "number"
+                },
+                "is_shadowbanned": {
+                    "type": "boolean"
+                },
+                "bot_percentage": {
+                    "type": "number"
+                }
+            },
+            "required": [
+                "true_authenticity_score",
+                "bot_percentage"
+            ]
+        }
+    }
+}

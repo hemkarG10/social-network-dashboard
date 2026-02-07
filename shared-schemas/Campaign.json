@@ -1,0 +1,79 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "Campaign Brief",
+    "type": "object",
+    "required": [
+        "id",
+        "brand_name",
+        "category",
+        "budget",
+        "goal",
+        "platform_preference"
+    ],
+    "properties": {
+        "id": {
+            "type": "string"
+        },
+        "brand_name": {
+            "type": "string"
+        },
+        "category": {
+            "type": "string",
+            "enum": [
+                "Fashion",
+                "Tech",
+                "Beauty",
+                "Fitness",
+                "Gaming",
+                "Food"
+            ]
+        },
+        "budget": {
+            "type": "number",
+            "minimum": 0
+        },
+        "goal": {
+            "type": "string",
+            "enum": [
+                "Awareness",
+                "Conversion",
+                "Content Creation"
+            ]
+        },
+        "platform_preference": {
+            "type": "array",
+            "items": {
+                "type": "string"
+            }
+        },
+        "required_activities": {
+            "type": "array",
+            "items": {
+                "type": "string",
+                "enum": [
+                    "Post",
+                    "Story",
+                    "Reel",
+                    "Video"
+                ]
+            }
+        },
+        "target_audience": {
+            "type": "object",
+            "properties": {
+                "age_range": {
+                    "type": "string"
+                },
+                "gender": {
+                    "type": "string"
+                },
+                "interests": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
+        }
+    }
+}

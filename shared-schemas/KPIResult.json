@@ -1,0 +1,37 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "KPI Computation Result",
+    "type": "object",
+    "required": [
+        "kpi_id",
+        "value",
+        "score_normalized",
+        "explanation",
+        "confidence_score"
+    ],
+    "properties": {
+        "kpi_id": {
+            "type": "string"
+        },
+        "value": {
+            "type": [
+                "number",
+                "string"
+            ]
+        },
+        "score_normalized": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 100,
+            "description": "Normalized 0-100 score for heatmap visualization"
+        },
+        "explanation": {
+            "type": "string"
+        },
+        "confidence_score": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+        }
+    }
+}

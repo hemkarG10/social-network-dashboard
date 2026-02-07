@@ -1,0 +1,122 @@
+{
+  "kpis": {
+    "influencer": [
+      {
+        "id": "authenticity_score",
+        "name": "Authenticity Score",
+        "description": "Measures how organic and genuine the influencer's audience and content appear.",
+        "input_features": ["follower_growth_rate", "engagement_rate_variance", "comment_sentiment_diversity"],
+        "output_range": "0-100",
+        "explanation_template": "Authenticity is {value}/100 based on {reasoning}. Key indicators: {details}."
+      },
+      {
+        "id": "engagement_quality",
+        "name": "Engagement Quality Score",
+        "description": "Evaluates the depth and relevance of audience interactions (e.g., comments vs. likes).",
+        "input_features": ["comment_length_avg", "reply_ratio", "emoji_only_percentage"],
+        "output_range": "0-100",
+        "explanation_template": "Engagement quality is {value}/100. Audience interactions are primarily {quality_level} with {detail}."
+      },
+      {
+        "id": "audience_brand_fit",
+        "name": "Audience-Brand Fit",
+        "description": "The alignment percentage between the influencer's audience demographics/interests and the brand's target.",
+        "input_features": ["audience_interests", "audience_demographics", "brand_category", "brand_target_demographics"],
+        "output_range": "0-100%",
+        "explanation_template": "Audience fit is {value}%. Strong overlap in {top_interests} but lower alignment in {weak_areas}."
+      },
+      {
+        "id": "platform_risk_score",
+        "name": "Platform Risk Score",
+        "description": "Assessment of the influencer's standing and compliance with platform guidelines.",
+        "input_features": ["past_violations", "content_flags", "platform_policy_changes"],
+        "output_range": "Low / Med / High",
+        "explanation_template": "Platform risk is {value}. This is driven by {primary_reason}."
+      },
+      {
+        "id": "fatigue_index",
+        "name": "Fatigue Index",
+        "description": "Indicates if the audience is oversaturated with sponsored content.",
+        "input_features": ["sponsored_post_ratio_30d", "engagement_decay_on_ads", "posting_frequency"],
+        "output_range": "0-100",
+        "explanation_template": "Fatigue index is {value}/100. Recent sponsored content frequency suggests {saturation_level} audience saturation."
+      }
+    ],
+    "campaign": [
+      {
+        "id": "predicted_impressions",
+        "name": "Predicted Impressions",
+        "description": "Estimated total views for the campaign posts.",
+        "input_features": ["avg_impressions_last_10_posts", "content_type", "posting_time", "network_algorithm_factor"],
+        "output_range": "Integer >= 0",
+        "explanation_template": "Projected impressions: {value}. Based on recent average of {avg_views} and content type lift of {lift_factor}."
+      },
+      {
+        "id": "predicted_engagements",
+        "name": "Predicted Engagements",
+        "description": "Estimated total likes, comments, and shares.",
+        "input_features": ["engagement_rate_avg", "predicted_impressions", "content_relevance_score"],
+        "output_range": "Integer >= 0",
+        "explanation_template": "Projected engagements: {value}. Assumes a {engagement_rate}% engagement rate on predicted impressions."
+      },
+      {
+        "id": "predicted_conversions",
+        "name": "Predicted Conversions",
+        "description": "Estimated number of desired actions (clicks, sales, signups).",
+        "input_features": ["ctr_benchmark", "conversion_rate_benchmark", "product_price_point", "predicted_impressions"],
+        "output_range": "Integer >= 0",
+        "explanation_template": "Estimated conversions: {value}. Derived from category average CTR of {ctr}% and conversion rate of {cvr}%."
+      },
+      {
+        "id": "predicted_revenue",
+        "name": "Predicted Revenue",
+        "description": "Estimated total revenue generated from the campaign.",
+        "input_features": ["predicted_conversions", "average_order_value"],
+        "output_range": "Currency ($)",
+        "explanation_template": "Projected revenue: ${value}. Calculated using {conversions} distinct conversions at ${aov} AOV."
+      },
+      {
+        "id": "predicted_cpa",
+        "name": "Predicted CPA",
+        "description": "Cost Per Acquisition estimate.",
+        "input_features": ["campaign_budget", "predicted_conversions"],
+        "output_range": "Currency ($)",
+        "explanation_template": "Estimated CPA: ${value}. Based on total budget ${budget} divided by {conversions} predicted conversions."
+      },
+      {
+        "id": "roi_confidence_range",
+        "name": "ROI Confidence Range",
+        "description": "The minimum and maximum expected Return on Investment.",
+        "input_features": ["predicted_revenue_min", "predicted_revenue_max", "campaign_budget"],
+        "output_range": "min: float, max: float",
+        "explanation_template": "ROI Range: {min}x to {max}x. We are {confidence_level}% confident returns will fall within this band."
+      }
+    ],
+    "risk": [
+      {
+        "id": "brand_safety_score",
+        "name": "Brand Safety Score",
+        "description": "Metric ensuring content aligns with brand values and avoids harmful associations.",
+        "input_features": ["keyword_analysis", "image_recognition_safety", "past_associations"],
+        "output_range": "0-100",
+        "explanation_template": "Brand Safety: {value}/100. Content history shows {risk_level} correlation with unsafe topics."
+      },
+      {
+        "id": "controversy_probability",
+        "name": "Controversy Probability",
+        "description": "Likelihood of the influencer being involved in a future scandal.",
+        "input_features": ["sentiment_volatility", "news_mention_sentiment", "topic_polarity"],
+        "output_range": "0-100%",
+        "explanation_template": "Controversy probability is {value}%. Recent spike in volatile sentiment detected requires monitoring."
+      },
+      {
+        "id": "fake_follower_probability",
+        "name": "Fake Follower Probability",
+        "description": "Estimate of the percentage of followers that are bot/fake accounts.",
+        "input_features": ["follower_creation_dates", "no_photo_profiles_ratio", "geo_anomaly_score"],
+        "output_range": "0-100%",
+        "explanation_template": "Fake follower likelihood: {value}%. Detailed scan flagged {anomaly_count} suspicious follow patterns."
+      }
+    ]
+  }
+}
