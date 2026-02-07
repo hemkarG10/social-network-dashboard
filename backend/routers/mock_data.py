@@ -4,6 +4,10 @@ import uuid
 
 router = APIRouter(prefix="/mock", tags=["Mock Data"])
 
+@router.get("/top_influencers")
+def get_top_influencers():
+    return generator.get_top_influencers()
+
 @router.get("/influencer/{influencer_id}")
 async def get_influencer(influencer_id: str):
     """

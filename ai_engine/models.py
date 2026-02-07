@@ -12,9 +12,18 @@ class KPIOutput(BaseModel):
     explanation: str
     confidence_score: float
 
+class AnalysisReport(BaseModel):
+    headline: str
+    magnitude: str
+    drivers: List[str]
+    hypotheses: List[str]
+    next_actions: List[str]
+    confidence_score: float
+
 class AnalystResponse(BaseModel):
     role: str
     kpis: List[KPIOutput]
+    analysis: AnalysisReport
 
 class ExecutiveResponse(BaseModel):
     decision: str

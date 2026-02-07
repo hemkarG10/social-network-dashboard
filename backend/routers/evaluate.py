@@ -2,6 +2,7 @@ from fastapi import APIRouter, HTTPException
 from ai_engine.orchestrator import orchestrator
 from ai_engine.models import EvaluationRequest
 from backend.services.data_generator import generator
+from backend.services.cache import cache
 
 router = APIRouter(prefix="/evaluate", tags=["Evaluation"])
 
@@ -27,6 +28,11 @@ async def evaluate_demo(influencer_id: str, campaign_id: str = None):
     Fetches the mock data by ID, then runs evaluation.
     This saves the frontend from having to send massive JSON blobs.
     """
+    # Check cache first
+    cached_result = cache.get(influencer_id)
+    if cached_result:
+        return cached_result
+
     influencer = generator.generate_influencer(influencer_id)
     if campaign_id:
         # TODO: Implement get_campaign by ID if we add persistence. 
@@ -36,4 +42,8 @@ async def evaluate_demo(influencer_id: str, campaign_id: str = None):
         campaign = generator.generate_campaign_brief()
         
     result = orchestrator.evaluate(influencer, campaign)
+    
+    # Store in cache
+    cache.set(influencer_id, result)
+    
     return result

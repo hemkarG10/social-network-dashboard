@@ -31,11 +31,16 @@ class Orchestrator:
         }
 
         # 1. Analyst Phase (In a real system, these would be async/parallel)
-        perf_kpis = llm_client.generate(self.prompts["performance_analyst"], context)
-        risk_kpis = llm_client.generate(self.prompts["risk_analyst"], context)
-        aud_kpis = llm_client.generate(self.prompts["audience_strategist"], context)
+        perf_data = llm_client.generate(self.prompts["performance_analyst"], context)
+        risk_data = llm_client.generate(self.prompts["risk_analyst"], context)
+        aud_data = llm_client.generate(self.prompts["audience_strategist"], context)
 
         # 2. Aggregation
+        # Extract KPIs from the new structured response
+        perf_kpis = perf_data.get("kpis", [])
+        risk_kpis = risk_data.get("kpis", [])
+        aud_kpis = aud_data.get("kpis", [])
+        
         all_kpis = perf_kpis + risk_kpis + aud_kpis
 
         # 3. Executive Phase
@@ -54,8 +59,11 @@ class Orchestrator:
         return {
             "decision_summary": decision,
             "kpis": all_kpis,
+            "analyst_reports": [perf_data, risk_data, aud_data],
             "influencer_id": influencer.get("id"),
-            "campaign_id": campaign.get("id")
+            "campaign_id": campaign.get("id"),
+            "niche": influencer.get("niche", "General"),
+            "goal": campaign.get("objective", "Awareness") # changed from 'goal' to 'objective' based on common Campaign schema
         }
 
 # Global instance

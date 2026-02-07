@@ -41,13 +41,14 @@ const KPICard = ({ kpi }) => {
     );
 };
 
-const KPIGrid = ({ kpis }) => {
+const KPIGrid = ({ kpis, compact = false, onKpiClick }) => {
     return (
-        <div className="mb-8">
-            <h3 className="text-lg font-semibold text-slate-800 mb-4 px-1">Key Performance Indicators</h3>
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+        <div className={compact ? "" : "mb-8"}>
+            <div className={`grid gap-4 ${compact ? 'grid-cols-1' : 'grid-cols-2 md:grid-cols-3 lg:grid-cols-4'}`}>
                 {kpis.map((kpi, idx) => (
-                    <KPICard key={idx} kpi={kpi} />
+                    <div key={idx} onClick={() => onKpiClick && onKpiClick(kpi)} className={onKpiClick ? "cursor-pointer" : ""}>
+                        <KPICard kpi={kpi} />
+                    </div>
                 ))}
             </div>
         </div>

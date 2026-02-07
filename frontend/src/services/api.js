@@ -20,5 +20,18 @@ export const api = {
             console.error("API Error:", error);
             throw error;
         }
+    },
+
+    chatWithAI: async (influencerId, query) => {
+        try {
+            const response = await axios.post(`${API_BASE_URL}/chat/`, {
+                influencer_id: influencerId,
+                query: query
+            });
+            return response.data;
+        } catch (error) {
+            console.error("Chat error:", error);
+            throw error;
+        }
     }
 };

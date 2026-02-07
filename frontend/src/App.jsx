@@ -1,25 +1,36 @@
 import React, { useState } from 'react';
-import { Search, Sparkles, LayoutDashboard, Loader2 } from 'lucide-react';
+import { Search, Sparkles, LayoutDashboard, Loader2, Bot, Layout, MessageSquare } from 'lucide-react';
 import { api } from './services/api';
 import ExecutiveSummary from './components/ExecutiveSummary';
 import KPIGrid from './components/KPIGrid';
 import AIAnalystPanel from './components/AIAnalystPanel';
+import ChatPanel from './components/ChatPanel';
+import LandingPage from './components/LandingPage';
 
 function App() {
+  const [view, setView] = useState('landing'); // 'landing' | 'dashboard'
+  const [activeTab, setActiveTab] = useState('overview'); // 'overview' | 'chat'
+
   const [influencerId, setInfluencerId] = useState('');
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
   const handleEvaluate = async (e) => {
-    e.preventDefault();
+    if (e && typeof e.preventDefault === 'function') {
+      e.preventDefault();
+    }
     if (!influencerId.trim()) return;
 
     setLoading(true);
     setError(null);
+    setResult(null);
+
     try {
       const data = await api.evaluateDemo(influencerId);
       setResult(data);
+      setView('dashboard');
+      setActiveTab('overview');
     } catch (err) {
       setError("Failed to evaluate influencer. Please try again.");
     } finally {
@@ -27,12 +38,32 @@ function App() {
     }
   };
 
+  const handleSelectFromLanding = (id) => {
+    setInfluencerId(id);
+    // Trigger evaluation immediately but we need to wait for state update in a real app
+    // Here we just call the function directly with the ID, but we need to update state too
+    // Ideally useEffect but let's just hack it for MVP
+    // We'll just call api directly
+    setLoading(true);
+    api.evaluateDemo(id).then(data => {
+      setResult(data);
+      setView('dashboard');
+      setActiveTab('overview');
+    }).catch(() => setError("Failed")).finally(() => setLoading(false));
+  };
+
+  const goHome = () => {
+    setView('landing');
+    setResult(null);
+    setInfluencerId('');
+  };
+
   return (
     <div className="min-h-screen bg-slate-50 font-sans text-slate-900 pb-20">
       {/* Header */}
       <header className="bg-white border-b border-slate-200 sticky top-0 z-10">
         <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-2 text-indigo-600 font-bold text-xl">
+          <div onClick={goHome} className="flex items-center gap-2 text-indigo-600 font-bold text-xl cursor-pointer">
             <Sparkles size={24} />
             AI Influencer Audit
           </div>
@@ -44,7 +75,7 @@ function App() {
                 type="text"
                 value={influencerId}
                 onChange={(e) => setInfluencerId(e.target.value)}
-                placeholder="Enter Influencer Handle or ID..."
+                placeholder="Enter Influencer Handle..."
                 className="w-full pl-10 pr-4 py-2 rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm bg-slate-50"
               />
             </div>
@@ -61,43 +92,74 @@ function App() {
 
       {/* Main Content */}
       <main className="max-w-6xl mx-auto px-4 py-8">
-        {!result && !loading && !error && (
-          <div className="text-center py-20">
-            <div className="bg-white p-8 rounded-2xl shadow-sm border border-slate-200 inline-block max-w-lg">
-              <div className="w-16 h-16 bg-indigo-50 text-indigo-600 rounded-full flex items-center justify-center mx-auto mb-4">
-                <LayoutDashboard size={32} />
-              </div>
-              <h1 className="text-2xl font-bold text-slate-800 mb-2">Ready to Audit</h1>
-              <p className="text-slate-500">
-                Enter an influencer ID to generate a real-time, AI-driven audit.
-                Our system uses synthetic data to simulate 14+ KPIs and provide a decision-grade analysis.
-              </p>
-              <div className="mt-6 flex flex-wrap gap-2 justify-center">
-                <button onClick={() => setInfluencerId('tech-guru-99')} className="text-xs bg-slate-100 hover:bg-slate-200 px-3 py-1 rounded-full text-slate-600">Try "tech-guru-99"</button>
-                <button onClick={() => setInfluencerId('fashion-star-1')} className="text-xs bg-slate-100 hover:bg-slate-200 px-3 py-1 rounded-full text-slate-600">Try "fashion-star-1"</button>
-              </div>
-            </div>
-          </div>
+
+        {view === 'landing' && (
+          <LandingPage onSelectInfluencer={handleSelectFromLanding} />
         )}
 
-        {error && (
-          <div className="bg-red-50 text-red-700 p-4 rounded-lg border border-red-200 mb-8 text-center">
-            {error}
-          </div>
-        )}
-
-        {result && (
+        {view === 'dashboard' && result && (
           <div className="animate-fade-in">
+            {/* Header Info */}
             <div className="mb-6 flex items-baseline gap-4">
               <h1 className="text-3xl font-bold text-slate-900">Audit Report</h1>
               <span className="text-slate-500 font-mono text-sm bg-white px-2 py-1 rounded border border-slate-200">ID: {result.influencer_id}</span>
             </div>
 
-            <ExecutiveSummary decisionSummary={result.decision_summary} />
-            <KPIGrid kpis={result.kpis} />
-            <AIAnalystPanel kpis={result.kpis} />
+            {/* Tabs */}
+            <div className="flex gap-4 border-b border-slate-200 mb-8">
+              <button
+                onClick={() => setActiveTab('overview')}
+                className={`pb-3 px-1 flex items-center gap-2 font-medium transition-colors border-b-2 ${activeTab === 'overview' ? 'border-indigo-600 text-indigo-600' : 'border-transparent text-slate-500 hover:text-slate-700'}`}
+              >
+                <Layout size={18} /> Overview
+              </button>
+              <button
+                onClick={() => setActiveTab('chat')}
+                className={`pb-3 px-1 flex items-center gap-2 font-medium transition-colors border-b-2 ${activeTab === 'chat' ? 'border-indigo-600 text-indigo-600' : 'border-transparent text-slate-500 hover:text-slate-700'}`}
+              >
+                <MessageSquare size={18} /> Assistant & Deep Dive
+              </button>
+            </div>
+
+            {activeTab === 'overview' ? (
+              <div className="space-y-8">
+                <ExecutiveSummary decisionSummary={result.decision_summary} />
+                <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+                  <h3 className="font-bold text-lg mb-4 text-slate-800">Key Business Metrics</h3>
+                  {/* We use specific KPIs for the overview as requested */}
+                  <KPIGrid kpis={result.kpis.filter(k =>
+                    ['avg_percentage_viewed', 'predicted_saves', 'promo_code_redemptions', 'predicted_shares', 'avg_view_duration', 'stayed_vs_swiped', 'comment_sentiment_quality', 'predicted_impressions'].includes(k.kpi_id)
+                  )} />
+                </div>
+                <AIAnalystPanel reports={result.analyst_reports} />
+              </div>
+            ) : (
+              <div className="grid lg:grid-cols-2 gap-8 h-[600px]">
+                <div className="overflow-y-auto pr-2 space-y-6">
+                  <h3 className="font-bold text-slate-700">All Performance Metrics</h3>
+                  {/* Show ALL KPIs in Chat Tab for context */}
+                  <KPIGrid kpis={result.kpis} compact={true} />
+                </div>
+                <div className="relative h-full bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+                  {/* Embedding Chat Panel directly */}
+                  <div className="h-full">
+                    <ChatPanel
+                      influencerId={result.influencer_id}
+                      isOpen={true}
+                      onClose={() => { }}
+                      isEmbedded={true}
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         )}
+
+        {view === 'dashboard' && error && (
+          <div className="bg-red-50 text-red-700 p-4 rounded-lg border border-red-200 mb-8 text-center">{error}</div>
+        )}
+
       </main>
     </div>
   );

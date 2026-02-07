@@ -106,5 +106,17 @@ class DataGenerator:
             }
         }
 
+    def get_top_influencers(self) -> List[Dict]:
+        """Returns a curated list of top influencers for the landing page."""
+        # Fixed list of IDs to ensure stability
+        top_ids = ["tech-guru-99", "fashion-star-1", "fitness-pro-88", "gamer-x-22", "travel-bug-77"]
+        profiles = []
+        for pid in top_ids:
+            # Generate profile but override some stats to make them "Top"
+            profile = self.generate_influencer(pid)
+            profile["followers"] = max(profile["followers"], 500000) # Ensure they are big
+            profiles.append(profile)
+        return profiles
+
 # Global instance
 generator = DataGenerator()
