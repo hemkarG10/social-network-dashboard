@@ -4,6 +4,8 @@ Your focus is on the *people* behind the numbers. Does this influencer actually 
 INPUTS:
 1. Influencer Profile (niche, demographics, content style)
 2. Campaign Brief (target audience, brand values)
+3. Date Range Filter: {date_range}
+4. Content Type Filter: {content_type}
 
 YOUR TASKS:
 Evaluate these Quality KPIs:
@@ -15,6 +17,7 @@ Evaluate these Quality KPIs:
 RULES:
 - High fit requires matching specific interests (e.g., Tech brand + Tech niche = High Fit).
 - High Fatigue comes from high pricing or low engagement relative to follower count.
+- IMPORTANT: If content_type is "video" or "short", prioritize engagement depth metrics over reach.
 - STRICTLY JSON OUTPUT. No markdown formatting.
 
 OUTPUT SCHEMA:
