@@ -125,9 +125,14 @@ function App() {
         {view === 'dashboard' && result && (
           <div className="animate-fade-in">
             {/* Header Info */}
-            <div className="mb-6 flex items-baseline gap-4">
-              <h1 className="text-3xl font-bold text-slate-900">Audit Report</h1>
-              <span className="text-slate-500 font-mono text-sm bg-white px-2 py-1 rounded border border-slate-200">ID: {result.influencer_id}</span>
+            <div className="mb-6 flex items-baseline justify-between">
+              <div className="flex items-baseline gap-4">
+                <h1 className="text-3xl font-bold text-slate-900">Audit Report</h1>
+                <span className="text-slate-500 font-mono text-sm bg-white px-2 py-1 rounded border border-slate-200">ID: {result.influencer_id}</span>
+              </div>
+              <button className="bg-white text-indigo-600 px-4 py-2 rounded-lg text-sm font-semibold border border-indigo-200 hover:bg-indigo-50 hover:border-indigo-300 transition-colors shadow-sm">
+                Reach Out
+              </button>
             </div>
 
             {/* Tabs */}

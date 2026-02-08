@@ -106,17 +106,34 @@ class DataGenerator:
             }
         }
 
-    def get_top_influencers(self) -> List[Dict]:
-        """Returns a curated list of top influencers for the landing page."""
-        # Fixed list of IDs to ensure stability
-        top_ids = ["tech-guru-99", "fashion-star-1", "fitness-pro-88", "gamer-x-22", "travel-bug-77"]
-        profiles = []
-        for pid in top_ids:
-            # Generate profile but override some stats to make them "Top"
-            profile = self.generate_influencer(pid)
-            profile["followers"] = max(profile["followers"], 500000) # Ensure they are big
-            profiles.append(profile)
-        return profiles
+    def get_top_influencers(self) -> Dict[str, List[Dict]]:
+        """Returns a curated list of top influencers organized by category."""
+        results = {}
+        
+        # We want a few specific categories to show on the landing page
+        target_niches = ["Tech", "Beauty", "Fitness", "Gaming", "Travel"]
+        
+        for niche in target_niches:
+            niche_influencers = []
+            # Generate 3 deterministic influencers for this niche
+            for i in range(1, 4):
+                # Create a stable ID concept: "top-niche-rank"
+                pid = f"top-{niche.lower()}-{i}"
+                
+                # We need to force the niche in the generator or just override it
+                # The generator allows ID input but Niche is random based on RNG from ID.
+                # To force a niche, we'll generate and then patch.
+                profile = self.generate_influencer(pid)
+                
+                # Override to ensure they match the category we want to display
+                profile["niche"] = niche 
+                profile["followers"] = max(profile["followers"], 250000 * i) # Tiered sizes
+                
+                niche_influencers.append(profile)
+            
+            results[niche] = niche_influencers
+            
+        return results
 
 # Global instance
 generator = DataGenerator()
