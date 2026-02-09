@@ -65,7 +65,7 @@ const KPICard = ({ kpi }) => {
 const KPIGrid = ({ kpis, compact = false, onKpiClick }) => {
     return (
         <div className={compact ? "" : "mb-8"}>
-            <div className={`grid gap-4 ${compact ? 'grid-cols-1' : 'grid-cols-2 md:grid-cols-3 lg:grid-cols-4'}`}>
+            <div className={`grid gap-4 ${compact ? 'grid-cols-1' : 'grid-cols-2 md:grid-cols-3 lg:grid-cols-5'}`}>
                 {kpis.map((kpi, idx) => (
                     <div key={idx} onClick={() => onKpiClick && onKpiClick(kpi)} className={onKpiClick ? "cursor-pointer" : ""}>
                         <KPICard kpi={kpi} />

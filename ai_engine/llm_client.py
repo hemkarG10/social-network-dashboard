@@ -82,30 +82,62 @@ class MockLLMClient:
         }
 
     def _mock_performance_analyst(self, data: Dict, rng: random.Random) -> Dict:
+        # Extract Detailed Metrics from Data Generator
+        detailed = data.get("detailed_metrics", {})
+        growth_metrics = detailed.get("growth_momentum", {})
+        intent_metrics = detailed.get("intent_conversion", {})
+        c_type = data.get("content_type", "all")
+        
+        # --- Restore Logic for Granular Metrics ---
         inf = data.get("influencer", {})
         camp = data.get("campaign", {})
         followers = inf.get("followers", 10000)
         engagement = inf.get("engagement_rate", 2.0)
         budget = camp.get("budget", 5000)
-        
-        # Simple deterministic logic
-        impressions = int(followers * (0.2 + (rng.random() * 0.1))) 
-        engagements = int(impressions * (engagement / 100))
-        conversions = int(impressions * (rng.uniform(0.005, 0.02)))
-        revenue = conversions * rng.uniform(50, 150)
-        cpa = budget / max(1, conversions)
-        min_roi = round(max(0.1, (revenue / budget) * 0.8), 2)
-        max_roi = round(min_roi * 1.5, 2)
 
-        # New Business Metrics
+        # Simple deterministic logic for execution metrics
+        impressions = int(followers * (0.2 + (rng.random() * 0.1))) 
         completion_rate = round(rng.uniform(0.15, 0.45), 2)
         saves = int(impressions * rng.uniform(0.02, 0.08))
-        shares = int(impressions * rng.uniform(0.01, 0.05))
-        avd = round(rng.uniform(3.5, 12.0), 1)
         stayed_rate = round(rng.uniform(0.6, 0.9), 2)
+        conversions = int(impressions * (rng.uniform(0.005, 0.02)))
         promo_redemptions = int(conversions * rng.uniform(0.4, 0.8))
 
+        # 1. Growth Momentum
+        # Base value on predicted growth
+        growth_val = int(growth_metrics.get("predicted_growth_6m", 0) / 1000) # Simple scaling
+        growth_score = min(99, int(rng.uniform(60, 95))) # Mock score for now, or derive from growth rate
+        
+        growth_explanation = "Viral peaks indicate strong short-term momentum."
+        if c_type == "long":
+            growth_explanation = "Consistent channel growth suggests long-term stability."
+
+        # 2. Intent Strength
+        intent_score = min(99, int(intent_metrics.get("promo_redemption_rate", 0) * 2000)) # Scale up
+        intent_score = max(40, intent_score)
+        
+        intent_explanation = "High share ratio indicates content stops the scroll."
+        if c_type == "long":
+            intent_explanation = "High retention correlates with strong conversion intent."
+
         kpis = [
+            # --- Strategic Signals (Top 5) ---
+            {
+                "kpi_id": "growth_momentum",
+                "value": f"{growth_score}/100",
+                "score_normalized": growth_score,
+                "explanation": growth_explanation,
+                "confidence_score": 0.85
+            },
+            {
+                "kpi_id": "intent_strength",
+                "value": f"{intent_score}/100",
+                "score_normalized": intent_score,
+                "explanation": intent_explanation,
+                "confidence_score": 0.82
+            },
+            
+            # --- Granular Execution Metrics (Restored) ---
             {
                 "kpi_id": "predicted_impressions",
                 "value": impressions,
@@ -128,13 +160,6 @@ class MockLLMClient:
                 "confidence_score": 0.85
             },
             {
-                "kpi_id": "avg_view_duration",
-                "value": f"{avd}s",
-                "score_normalized": min(100, int(avd * 8)),
-                "explanation": "Average time spent watching content.",
-                "confidence_score": 0.75
-            },
-            {
                 "kpi_id": "predicted_saves",
                 "value": saves,
                 "score_normalized": min(100, saves / 100),
@@ -142,32 +167,11 @@ class MockLLMClient:
                 "confidence_score": 0.7
             },
             {
-                "kpi_id": "predicted_shares",
-                "value": shares,
-                "score_normalized": min(100, shares / 100),
-                "explanation": "Viral potential and earned reach.",
-                "confidence_score": 0.65
-            },
-            {
                 "kpi_id": "promo_code_redemptions",
                 "value": promo_redemptions,
                 "score_normalized": min(100, promo_redemptions / 20),
                 "explanation": "Direct revenue attribution estimate.",
                 "confidence_score": 0.6
-            },
-            {
-                "kpi_id": "predicted_revenue",
-                "value": f"${int(revenue):,}",
-                "score_normalized": min(100, revenue / (budget * 2) * 50),
-                "explanation": f"Assuming avg order value of $100.",
-                "confidence_score": 0.65
-            },
-             {
-                "kpi_id": "roi_confidence_range",
-                "value": f"{min_roi}x - {max_roi}x",
-                "score_normalized": min(100, min_roi * 30),
-                "explanation": "Conservative to Optimistic ROI spread.",
-                "confidence_score": 0.9
             }
         ]
 
@@ -178,11 +182,34 @@ class MockLLMClient:
         }
 
     def _mock_risk_analyst(self, data: Dict, rng: random.Random) -> Dict:
+        detailed = data.get("detailed_metrics", {})
+        brand_metrics = detailed.get("brand_readiness", {})
+        c_type = data.get("content_type", "all")
+
+        safety_score = brand_metrics.get("brand_safety_score", 85)
+        
+        # Contextual explanation
+        explanation = "Content aligns with brand safety guidelines."
+        if c_type == "short":
+            explanation = "Low viral risk detected in recent shorts."
+        elif c_type == "long":
+            explanation = "Deep content reflects strong brand alignment."
+
         kpis = [
+            # --- Strategic Signals (Top 5) ---
+            {
+                "kpi_id": "brand_readiness",
+                "value": f"{safety_score}/100",
+                "score_normalized": safety_score,
+                "explanation": explanation,
+                "confidence_score": 0.95
+            },
+            
+            # --- Granular Execution Metrics (Restored) ---
             {
                 "kpi_id": "brand_safety_score",
-                "value": rng.randint(60, 99),
-                "score_normalized": rng.randint(60, 99), 
+                "value": safety_score, # Re-using the raw score
+                "score_normalized": safety_score, 
                 "explanation": "Content analysis shows mostly safe topics.",
                 "confidence_score": 0.95
             },
@@ -199,13 +226,6 @@ class MockLLMClient:
                 "score_normalized": 100 - rng.randint(5, 30),
                 "explanation": "Some engagement anomalies detected.",
                 "confidence_score": 0.85
-            },
-             {
-                "kpi_id": "platform_risk_score",
-                "value": rng.choice(["Low", "Low", "Medium"]),
-                "score_normalized": 80,
-                "explanation": "Account is in good standing.",
-                "confidence_score": 0.9
             }
         ]
         return {
@@ -215,26 +235,63 @@ class MockLLMClient:
         }
 
     def _mock_audience_strategist(self, data: Dict, rng: random.Random) -> Dict:
+        detailed = data.get("detailed_metrics", {})
+        eng_metrics = detailed.get("engagement_quality", {})
+        cred_metrics = detailed.get("audience_credibility", {})
+        loyalty_metrics = detailed.get("consistency_loyalty", {})
+        c_type = data.get("content_type", "all")
+
+        # 1. Engagement Quality
+        # Composite of completion and like/view
+        comp = eng_metrics.get("completion_rate", 50) 
+        # comp is 0-100 from DataGenerator? No, it's 0.3-0.8 * 100 in dict?
+        # In generator: round(completion_rate * 100, 1) -> so it's 0-100.
+        eng_score = int(comp)
+        
+        eng_explanation = "High completion rates indicate strong hook."
+        if c_type == "long":
+            eng_explanation = "Deep engagement duration suggests high interest."
+
         kpis = [
+             # --- Strategic Signals (Top 5) ---
              {
-                "kpi_id": "authenticity_score",
-                "value": rng.randint(50, 95),
-                "score_normalized": rng.randint(50, 95), 
-                "explanation": "Comments appear organic and relevant.",
+                "kpi_id": "engagement_quality",
+                "value": f"{eng_score}/100",
+                "score_normalized": eng_score, 
+                "explanation": eng_explanation,
                 "confidence_score": 0.9
-            },
+            }
+        ]
+
+        # 2. Audience Signal (Credibility vs Loyalty)
+        if c_type == "long":
+            # Audience Loyalty
+            retention = loyalty_metrics.get("retention_score", 70)
+            kpis.append({
+                "kpi_id": "audience_loyalty",
+                "value": f"{retention}/100",
+                "score_normalized": retention,
+                "explanation": "Consistent viewership across long-form content.",
+                "confidence_score": 0.88
+            })
+        else:
+            # Audience Credibility (Short or All)
+            qual = cred_metrics.get("audience_quality_score", 80)
+            kpis.append({
+                "kpi_id": "audience_credibility",
+                "value": f"{qual}/100",
+                "score_normalized": qual,
+                "explanation": "Audience appears authentic with low bot probability.",
+                "confidence_score": 0.88
+            })
+            
+        # --- Granular Execution Metrics (Restored) ---
+        kpis.extend([
             {
                 "kpi_id": "comment_sentiment_quality",
-                "value": f"{rng.randint(70, 95)}/100",
-                "score_normalized": rng.randint(70, 95),
+                "value": f"{detailed.get('engagement_quality', {}).get('comment_sentiment_quality', 85)}/100",
+                "score_normalized": 85,
                 "explanation": "High volume of product-specific questions vs generic emojis.",
-                "confidence_score": 0.85
-            },
-            {
-                "kpi_id": "engagement_quality",
-                "value": rng.randint(40, 90),
-                "score_normalized": rng.randint(40, 90),
-                "explanation": "High ratio of replies vs likes.",
                 "confidence_score": 0.85
             },
             {
@@ -245,13 +302,16 @@ class MockLLMClient:
                 "confidence_score": 0.85
             },
             {
+                "kpi_id": "avg_view_duration", # Moved from performance sometimes?? No, keep logical separation. 
+                # Actually, let's just restore what was there.
                 "kpi_id": "fatigue_index",
                 "value": rng.randint(0, 60),
                 "score_normalized": 100 - rng.randint(0, 60),
                 "explanation": "Posting frequency is healthy.",
                 "confidence_score": 0.9
             }
-        ]
+        ])
+
         return {
             "role": "Audience Strategist",
             "kpis": kpis,

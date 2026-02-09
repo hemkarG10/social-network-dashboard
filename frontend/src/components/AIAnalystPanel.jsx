@@ -40,8 +40,8 @@ const AnalystCard = ({ role, icon: Icon, color, kpis }) => {
 const categorize = (kpi) => {
     const id = kpi.kpi_id;
     // Categorization logic based on ID patterns
-    if (id.includes('brand_safety') || id.includes('controversy') || id.includes('fake_follower') || id.includes('platform_risk')) return 'risk';
-    if (id.includes('authenticity') || id.includes('engagement_quality') || id.includes('audience_brand') || id.includes('fatigue')) return 'audience';
+    if (id.includes('brand_safety') || id.includes('brand_readiness') || id.includes('controversy') || id.includes('fake_follower') || id.includes('platform_risk')) return 'risk';
+    if (id.includes('authenticity') || id.includes('engagement_quality') || id.includes('audience') || id.includes('fatigue') || id.includes('sentiment') || id.includes('loyalty') || id.includes('credibility')) return 'audience';
     // Default to performance for everything else (impressions, views, etc)
     return 'performance';
 };

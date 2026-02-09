@@ -25,9 +25,15 @@ class Orchestrator:
         3. Calls Executive Decider.
         4. Returns combined response.
         """
+        # Content Type is critical for the new 5-signal matrix
+        # We prefer the context stored in the influencer object as it is passed from the router/generator
+        c_type = influencer.get("content_type_context", "all") 
+        
         context = {
             "influencer": influencer,
-            "campaign": campaign
+            "campaign": campaign,
+            "detailed_metrics": influencer.get("detailed_metrics", {}),
+            "content_type": c_type
         }
 
         # 1. Analyst Phase (In a real system, these would be async/parallel)

@@ -7,13 +7,12 @@ export const api = {
      * Evaluates an influencer by ID. 
      * Uses the demo endpoint to let the backend generate the mock data.
      */
-    evaluateDemo: async (influencerId, campaignId = null, dateRange = '1m', contentType = 'all') => {
+    evaluateDemo: async (influencerId, campaignId = null, contentType = 'all') => {
         try {
             const response = await axios.post(`${API_BASE_URL}/evaluate/demo`, null, {
                 params: {
                     influencer_id: influencerId,
                     campaign_id: campaignId,
-                    date_range: dateRange,
                     content_type: contentType
                 }
             });

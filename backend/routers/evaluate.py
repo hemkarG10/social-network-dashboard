@@ -22,18 +22,21 @@ async def evaluate_influencer(request: EvaluationRequest):
     return result
 
 @router.post("/demo")
-async def evaluate_demo(influencer_id: str, campaign_id: str = None):
+async def evaluate_demo(influencer_id: str, campaign_id: str = None, content_type: str = "all"):
     """
     Helper endpoint for the frontend.
     Fetches the mock data by ID, then runs evaluation.
     This saves the frontend from having to send massive JSON blobs.
     """
-    # Check cache first
-    cached_result = cache.get(influencer_id)
+    # Check cache first (Cache key now includes content_type)
+    cache_key = f"{influencer_id}_{content_type}"
+    cached_result = cache.get(cache_key)
     if cached_result:
         return cached_result
 
-    influencer = generator.generate_influencer(influencer_id)
+    # Pass content_type to generator to influence metrics
+    influencer = generator.generate_influencer(influencer_id, content_type)
+    
     if campaign_id:
         # TODO: Implement get_campaign by ID if we add persistence. 
         # For now, generate a random one or use the one provided.
@@ -44,6 +47,6 @@ async def evaluate_demo(influencer_id: str, campaign_id: str = None):
     result = orchestrator.evaluate(influencer, campaign)
     
     # Store in cache
-    cache.set(influencer_id, result)
+    cache.set(cache_key, result)
     
     return result

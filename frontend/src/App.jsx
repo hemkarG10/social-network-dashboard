@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Search, Sparkles, LayoutDashboard, Loader2, Bot, Layout, MessageSquare } from 'lucide-react';
 import { api } from './services/api';
 import ExecutiveSummary from './components/ExecutiveSummary';
@@ -12,13 +12,26 @@ function App() {
   const [activeTab, setActiveTab] = useState('overview'); // 'overview' | 'chat'
 
   // Global Filters
-  const [dateFilter, setDateFilter] = useState('1m'); // '1m' | '3m' | '6m'
   const [contentTypeFilter, setContentTypeFilter] = useState('all'); // 'all' | 'short' | 'video' | 'long'
 
   const [influencerId, setInfluencerId] = useState('');
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+
+  // Re-fetch when filter changes if we have an active influencer
+  useEffect(() => {
+    if (view === 'dashboard' && influencerId && !loading) {
+      handleEvaluate();
+    }
+  }, [contentTypeFilter]);
+
+  // Reset filter when search is empty
+  useEffect(() => {
+    if (!influencerId) {
+      setContentTypeFilter('all');
+    }
+  }, [influencerId]);
 
   const handleEvaluate = async (e) => {
     if (e && typeof e.preventDefault === 'function') {
@@ -31,7 +44,7 @@ function App() {
     setResult(null);
 
     try {
-      const data = await api.evaluateDemo(influencerId, null, dateFilter, contentTypeFilter);
+      const data = await api.evaluateDemo(influencerId, null, contentTypeFilter);
       setResult(data);
       setView('dashboard');
       setActiveTab('overview');
@@ -49,7 +62,7 @@ function App() {
     // Ideally useEffect but let's just hack it for MVP
     // We'll just call api directly
     setLoading(true);
-    api.evaluateDemo(id, null, dateFilter, contentTypeFilter).then(data => {
+    api.evaluateDemo(id, null, contentTypeFilter).then(data => {
       setResult(data);
       setView('dashboard');
       setActiveTab('overview');
@@ -85,19 +98,10 @@ function App() {
             </div>
 
             <select
-              value={dateFilter}
-              onChange={(e) => setDateFilter(e.target.value)}
-              className="bg-slate-50 border border-slate-300 text-slate-700 text-sm rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block p-2 cursor-pointer"
-            >
-              <option value="1m">1 Month</option>
-              <option value="3m">3 Months</option>
-              <option value="6m">6 Months</option>
-            </select>
-
-            <select
               value={contentTypeFilter}
               onChange={(e) => setContentTypeFilter(e.target.value)}
-              className="bg-slate-50 border border-slate-300 text-slate-700 text-sm rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block p-2 cursor-pointer"
+              disabled={!influencerId}
+              className={`bg-slate-50 border border-slate-300 text-slate-700 text-sm rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block p-2 ${!influencerId ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
             >
               <option value="all">All Content</option>
               <option value="short">Short Form</option>
@@ -158,7 +162,7 @@ function App() {
                   <h3 className="font-bold text-lg mb-4 text-slate-800">Key Business Metrics</h3>
                   {/* We use specific KPIs for the overview as requested */}
                   <KPIGrid kpis={result.kpis.filter(k =>
-                    ['avg_percentage_viewed', 'predicted_saves', 'promo_code_redemptions', 'predicted_shares', 'avg_view_duration', 'stayed_vs_swiped', 'comment_sentiment_quality', 'predicted_impressions'].includes(k.kpi_id)
+                    ['growth_momentum', 'intent_strength', 'engagement_quality', 'audience_credibility', 'audience_loyalty', 'brand_readiness'].includes(k.kpi_id)
                   )} />
                 </div>
                 <AIAnalystPanel kpis={result.kpis} />
